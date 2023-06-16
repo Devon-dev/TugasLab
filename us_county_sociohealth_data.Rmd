@@ -1,0 +1,148 @@
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("hash")
+library(hash)
+```
+
+```{r}
+us <- read.csv("us_county_sociohealth_data.csv") # untuk menjalankan data
+```
+
+
+```{r}
+getwd() # untuk mengetahui lokasi file yang kita simpan
+```
+
+```{r}
+colnames(us)
+```
+
+```{r}
+summary(us)
+```
+
+```{r}
+sort(unique(us$percent_minorities))  
+```
+
+```{r}
+sort(unique(us$percent_hispanic))
+```
+
+```{r}
+# untuk membuat histogram untuk jumlah persentasi minoritas 
+ggplot(data=us, aes(x=percent_minorities)) +
+  geom_histogram(fill="darkblue", color="purple") +
+  ggtitle("Histogram of Percent minorities")
+```
+
+```{r}
+# untuk membuat perbandingan persentasi minoritas dengan persentasi hispanic
+# menggunakan scatterplot
+ggplot(data=us, aes(x=percent_minorities, y=percent_hispanic)) + 
+  geom_point( color="darkgreen")
+```
+
+```{r}
+# untuk membuat perbandingan antara percent_no_vehicle dengan percent_mobile_homes 
+# menggunakan boxplot
+ggplot(data=us, aes(x=percent_no_vehicle, y=percent_mobile_homes)) + 
+  geom_boxplot(fill="steelblue", color = "lightgreen")
+```
+
+```{r}
+# untuk menghitung total missing value di setiap kolom nya
+sapply(us, function(x) sum(is.na(x)))
+```
+
+```{r}
+# untuk melihat perbandingan percentile_rank_age_65_and_older 
+# vs percentile_rank_age_17_and_younger menggunakan boxplot
+ggplot(data = us, aes(x=percentile_rank_age_65_and_older ,
+                      y=percentile_rank_age_17_and_younger)) + 
+  geom_boxplot()+
+  scale_color_brewer(palette="Dark2") + 
+  geom_jitter(shape=16, color="blue", position=position_jitter(0.2))+
+  labs(title = 'percentile_rank_age_65_and_older vs percentile_rank_age_17_and_younger',
+       y='percentile_rank_age_65_and_older',x=' percentile_rank_age_17_and_younger')
+
+```
+
+```{r}
+# Getting the metrics about data types, zeros, infinite numbers, and missing values:
+glimpse(us)
+```
+
+```{r}
+# Creating frequency polygon
+ggplot(data = us, mapping = aes(x = percent_no_vehicle)) +
+  geom_freqpoly( color = "orange",binwidth = 0.1)
+```
+
+```{r}
+names(us)
+```
+
+```{r}
+# Install dan memuat pustaka yang diperlukan
+install.packages("rpart")
+library(rpart)
+install.packages("caTools")
+library(caTools)
+install.packages("rpart.plot")
+library(rpart.plot)
+install.packages("dplyr")
+library(dplyr)
+install.packages("ISLR")
+library(ISLR)
+```
+
+```{r}
+set.seed(42)
+sample_split <- sample.split(Y = us$state, SplitRatio = 0.75)
+train_set <- subset(x = WA, sample_split == TRUE)
+test_set <- subset(x = WA, sample_split == FALSE)
+```
+
+```{r}
+# modeling
+model <- rpart(total_population ~ ., data = us, method = "anova")
+print(model)
+```
+
+```{r}
+rpart.plot(model)
+```
+
+```{r}
+prop.table(table(us$population))
+```
+
+```{r}
+# untuk membuat inisial decision tree
+tree <- rpart(num_asian ~ num_uninsured_2 + num_uninsured_3, data=us, control=rpart.control(cp=.0001))
+
+# untuk mengidentifikasi nilai cp terbaik untuk digunakan
+best <- tree$cptable[which.min(tree$cptable[,"xerror"]),"CP"]
+
+# untuk memproduksi pruned tree berdasarkan nilai terbaik CP
+pruned_tree <- prune(tree, cp=best)
+
+# untuk membuat pruned tree
+prp(pruned_tree)
+```
+
+```{r}
+# Find correlation between population and population_2
+corr_mat = cor(us$population, us[c("population_2")], method=("pearson"))
+corr_mat
+
+```
+
+```
+
+```{r}
+
+```
+

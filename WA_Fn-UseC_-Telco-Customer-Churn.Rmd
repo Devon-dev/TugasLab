@@ -1,0 +1,214 @@
+```{r}
+install.packages("ggplot2")
+library(ggplot2)
+install.packages("hash")
+library(hash)
+```
+
+```{r}
+WA <- read.csv("WA_Fn-UseC_-Telco-Customer-Churn.csv") # untuk menjalankan data
+```
+
+```{r}
+getwd() # untuk mengetahui lokasi file yang kita simpan
+```
+
+
+```{r}
+colnames(WA)
+```
+
+```{r}
+sort(unique(WA$tenure)) # terdapat angka 0 dengan nilai terkecil di data tersebut.
+```
+
+
+```{r}
+sort(unique(WA$Contract))
+```
+
+```{r}
+# untuk membuat histogram untuk Total Charges
+ggplot(data=WA, aes(x=TotalCharges)) +
+  geom_histogram(fill="maroon", color="lightgreen") +
+  ggtitle("Histogram of TotalCharges")
+```
+
+```{r}
+# untuk membuat perbandingan gender dengan Partner menggunakan scatterplot
+ggplot(data=WA, aes(x=gender, y=Partner, color="pink")) + 
+  geom_point()
+```
+
+```{r}
+# untuk membuat perbandingan antara StreamingTV dengan StreamingMovies menggunakan boxplot
+ggplot(data=WA, aes(x=StreamingTV, y=StreamingMovies)) + 
+  geom_boxplot(color="steelblue")
+```
+
+```{r}
+# untuk menghitung total missing value di setiap kolom nya
+sapply(us, function(x) sum(is.na(x)))
+# terbukti bahwa tak ada missing value di setiap kolomnya
+```
+
+```{r}
+# untuk melihat perbandingan MonthlyCharges vs TotalCharges menggunakan boxplot
+ggplot(data = WA, aes(x=MonthlyCharges ,
+                      y=TotalCharges)) + 
+  geom_boxplot()+
+  scale_color_brewer(palette="Dark2") + 
+  geom_jitter(shape=21, color="purple", position=position_jitter(0.2))+
+  labs(title = 'MonthlyCharges vs TotalCharges',
+       y='TotalCharges',x='MonthlyCharges')
+
+
+```
+
+```{r}
+# Creating frequency polygon
+ggplot(data = WA, mapping = aes(x = TotalCharges)) +
+  geom_freqpoly(binwidth = 0.1 , color = "darkblue")
+
+```
+
+
+```{r}
+names(WA)
+```
+
+# menggunakan decision tree regression
+
+```{r}
+# Install dan memuat pustaka yang diperlukan
+install.packages("rpart")
+library(rpart)
+install.packages("caTools")
+library(caTools)
+install.packages("rpart.plot")
+library(rpart.plot)
+install.packages("dplyr")
+library(dplyr)
+install.packages("ISLR")
+library(ISLR)
+```
+
+
+```{r}
+set.seed(42)
+sample_split <- sample.split(Y = WA$TotalCharges, SplitRatio = 0.75)
+train_set <- subset(x = WA, sample_split == TRUE)
+test_set <- subset(x = WA, sample_split == FALSE)
+```
+
+
+# untuk Membangun dan menampilkan model decision tree regression
+```{r}
+
+# modeling
+model <- rpart(MonthlyCharges ~ ., data = WA, method = "anova")
+print(model)
+
+```
+
+```{r}
+rpart.plot(model)
+```
+
+```{r}
+prop.table(table(WA$TotalCharges))
+```
+
+```{r}
+# untuk membuat inisial decision tree
+tree <- rpart(gender ~ MonthlyCharges + TotalCharges, data=WA, control=rpart.control(cp=.0001))
+
+# untuk mengidentifikasi nilai cp terbaik untuk digunakan
+best <- tree$cptable[which.min(tree$cptable[,"xerror"]),"CP"]
+
+# untuk memproduksi pruned tree berdasarkan nilai terbaik CP
+pruned_tree <- prune(tree, cp=best)
+
+# untuk membuat pruned tree
+prp(pruned_tree)
+```
+
+```{r}
+# Find correlation between Monthly Charges and Total Charges
+corr_mat = cor(WA$MonthlyCharges, WA[c("TotalCharges")], method=("pearson"))
+corr_mat
+
+```
+
+```{r}
+ggplot(WA, aes(x=PhoneService, y=InternetService)) + geom_point(color = "blue")
+```
+
+
+
+```{r}
+MonthlyCharges = c()
+
+for(i in 1:77)
+{
+  MonthlyCharges <- append(TotalCharges, sum(WA[WA$MonthlyCharges == i, "TotalCharges"]))
+}
+
+chisq.test(MonthlyCharges)
+```
+
+
+```{r}
+install.packages("GGally")
+library("GGally")
+```
+
+```{r}
+fit_1 <- lm(MonthlyCharges ~ TotalCharges, data = WA)
+```
+
+```{r}
+summary(fit_1)
+```
+
+```{r}
+predict(fit_1, data.frame(MonthlyCharges = 18.2))
+```
+
+
+
+```{r}
+install.packages("scatterplot3d")
+library("scatterplot3d")
+```
+
+```{r}
+MonthlyCharges <- seq(9,21, by=0.5) ## make a girth vector
+TotalCharges <- seq(60,90, by=0.5) ## make a height vector
+pred_Charges <- expand.grid(MonthlyCharges = MonthlyCharges, TotalCharges = TotalCharges)
+```
+
+```{r}
+pred_Charges$Volume2 <-predict(fit_1, new = pred_Charges)
+```
+
+```{r}
+fit_1_sp <- scatterplot3d(pred_Charges$MonthlyCharges, pred_Charges$TotalCharges, pred_Charges$Volume2, angle = 60, color = "dodgerblue", pch = 1, ylab = "TotalCharges", xlab = "MonthlyCharges", zlab = "Volume " )
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
